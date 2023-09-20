@@ -2,7 +2,7 @@
 import { onMounted } from 'vue';
 import { useWeatherStore } from '../stores/WeatherStore';
 
-const { currentWeather, weathers, getCurrentWeather, isLoading } = useWeatherStore()
+const { data, getCurrentWeather } = useWeatherStore()
 onMounted( async () => {
   await getCurrentWeather()
 })
@@ -10,27 +10,26 @@ onMounted( async () => {
 </script>
 <template>
   <div>
-    <p>{{currentWeather}}</p>
     <ul class="weather__list">
-      <h2 v-if="isLoading === true">Loading...</h2>
-      <li class="weather__list-item" v-if="currentWeather">
+      <h2 v-if="data.isLoading === true">Loading...</h2>
+      <li class="weather__list-item" v-if="data.currentWeather">
         <div class="weather__header">
-          <h2 class="weather__location">{{ currentWeather.name }} , {{ currentWeather.sys.country }}</h2>
+          <h2 class="weather__location">{{ data.currentWeather.name }} , {{ data.currentWeather.sys.country }}</h2>
           <div class="weather__main-info">
-            <h2 class="weather__degree">{{ Math.round(currentWeather.main.temp - 273.15) }}°</h2>
+            <h2 class="weather__degree">{{ Math.round(data.currentWeather.main.temp - 273.15) }}°</h2>
           </div>
         </div>
         <div class="weather__data">
-          <p class="weather__descr">Feels like {{ Math.round(currentWeather.main.feels_like - 273.15) }}, {{ currentWeather.weather[0].description }}. Light
+          <p class="weather__descr">Feels like {{ Math.round(data.currentWeather.main.feels_like - 273.15) }}, {{ data.currentWeather.weather[0].description }}. Light
             breeze</p>
-          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="weather__nav-icon"> {{ currentWeather.wind.speed
+          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="weather__nav-icon"> {{ data.currentWeather.wind.speed
           }}m/s SSE</p>
-          <p class="weather__pressure">{{ currentWeather.main.pressure }}hPa</p>
-          <p class="weather__humidity">Humidity: {{ currentWeather.main.humidity }}%</p>
-          <p class="weather__visibility">Visibility: {{ currentWeather.visibility }}m</p>
+          <p class="weather__pressure">{{ data.currentWeather.main.pressure }}hPa</p>
+          <p class="weather__humidity">Humidity: {{ data.currentWeather.main.humidity }}%</p>
+          <p class="weather__visibility">Visibility: {{ data.currentWeather.visibility }}m</p>
         </div>
       </li>
-      <li class="weather__list-item" v-for="weather in weathers">
+      <li class="weather__list-item" v-for="weather in data.weathers">
         <div class="weather__header">
           <h2 class="weather__location">{{ weather.name }} , {{ weather.sys.country }}</h2>
           <div class="weather__main-info">

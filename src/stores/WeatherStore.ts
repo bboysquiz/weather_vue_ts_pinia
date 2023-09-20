@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia';
-import { ref, Ref } from 'vue';
+import { reactive } from 'vue';
 import axios, { AxiosResponse } from 'axios'
+
+interface Data {
+    weathers: WeatherData[],
+    lon: number | null,
+    lat: number | null,
+    isLoading: boolean,
+    currentWeather: WeatherData | null
+}
 
 interface WeatherData {
     base: string,
@@ -47,36 +55,39 @@ interface WeatherItem {
     main: string,
 }
 
-export const useWeatherStore = defineStore('weathers', () => {
-    const weathers: Ref<WeatherData[]> = ref([])
-    const lon: Ref<number | null> = ref(null)
-    const lat: Ref<number | null> = ref(null)
-    const isLoading: Ref<boolean> = ref(false)
-    const currentWeather: Ref<WeatherData | null> = ref(null)
 
+const data: Data = reactive({
+    weathers: [],
+    lon: null,
+    lat: null,
+    isLoading: false,
+    currentWeather: null,
+});
+
+
+export const useWeatherStore = defineStore('weathers', () => {
     const getWeather = async (cityName: string): Promise<void> => {
         try {
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=67c859d5010465976e7b3e885122af9a&units=metric`;
             const response: AxiosResponse<WeatherData> = await axios.get(url);
-            weathers.value = [...weathers.value, response.data];
-            console.log(weathers.value)
+            data.weathers = [...data.weathers, response.data];
+            console.log(data.weathers)
         } catch (error) {
             console.error(error);
         }
     };
-
     const getCurrentWeather = async (): Promise<void> => {
-        isLoading.value = true
+        data.isLoading = true
         navigator.geolocation.getCurrentPosition(async function (position) {
-            lon.value = position.coords.longitude
-            lat.value = position.coords.latitude
-            console.log("Latitude:", lat.value, "Longitude:", lon.value);
+            data.lon = position.coords.longitude
+            data.lat = position.coords.latitude
+            console.log("Latitude:", data.lat, "Longitude:", data.lon);
             try {
-                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat.value}&lon=${lon.value}&appid=67c859d5010465976e7b3e885122af9a`;
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${data.lat}&lon=${data.lon}&appid=67c859d5010465976e7b3e885122af9a`;
                 const response: AxiosResponse<WeatherData> = await axios.get(url);
-                currentWeather.value = response.data
-                console.log(currentWeather.value)
-                isLoading.value = false
+                data.currentWeather = response.data
+                console.log(data.currentWeather)
+                data.isLoading = false
             } catch (error) {
                 console.error(error);
             }
@@ -84,5 +95,5 @@ export const useWeatherStore = defineStore('weathers', () => {
             console.error("Error occurred while getting location:", error);
         });
     }
-        return { weathers, getWeather, getCurrentWeather, currentWeather, isLoading }
+        return { data, getWeather, getCurrentWeather }
     })
