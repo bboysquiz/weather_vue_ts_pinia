@@ -3,8 +3,10 @@ import { onMounted } from 'vue';
 import { useWeatherStore } from '../stores/WeatherStore';
 
 const { data, getCurrentWeather } = useWeatherStore()
-onMounted( async () => {
-  await getCurrentWeather()
+onMounted(async () => {
+  if (!data.currentWeather) {
+    await getCurrentWeather()
+  }
 })
 
 </script>
@@ -20,9 +22,11 @@ onMounted( async () => {
           </div>
         </div>
         <div class="weather__data">
-          <p class="weather__descr">Feels like {{ Math.round(data.currentWeather.main.feels_like - 273.15) }}, {{ data.currentWeather.weather[0].description }}. Light
+          <p class="weather__descr">Feels like {{ Math.round(data.currentWeather.main.feels_like - 273.15) }}°, {{
+            data.currentWeather.weather[0].description }}. Light
             breeze</p>
-          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="weather__nav-icon"> {{ data.currentWeather.wind.speed
+          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="weather__nav-icon"> {{
+            data.currentWeather.wind.speed
           }}m/s SSE</p>
           <p class="weather__pressure">{{ data.currentWeather.main.pressure }}hPa</p>
           <p class="weather__humidity">Humidity: {{ data.currentWeather.main.humidity }}%</p>
@@ -33,14 +37,15 @@ onMounted( async () => {
         <div class="weather__header">
           <h2 class="weather__location">{{ weather.name }} , {{ weather.sys.country }}</h2>
           <div class="weather__main-info">
-            <img class="weather__img" src="https://img.icons8.com/emoji/48/null/sun-behind-small-cloud.png" />
-            <span class="weather__degree">{{ weather.main.temp }}</span>
+            <h2 class="weather__degree">{{ Math.round(weather.main.temp) }}°</h2>
           </div>
         </div>
         <div class="weather__data">
-          <p class="weather__descr">Feels like {{ weather.main.feels_like }}, {{ weather.weather[0].description }}. Light
+          <p class="weather__descr">Feels like {{ Math.round(weather.main.feels_like) }}°, {{
+            weather.weather[0].description }}. Light
             breeze</p>
-          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="widget__nav-icon"> {{ weather.wind.speed
+          <p class="weather__wind"><img src="../assets/navigator.png" alt="navigator" class="weather__nav-icon"> {{
+            weather.wind.speed
           }}m/s SSE</p>
           <p class="weather__pressure">{{ weather.main.pressure }}hPa</p>
           <p class="weather__humidity">Humidity: {{ weather.main.humidity }}%</p>
@@ -64,6 +69,13 @@ onMounted( async () => {
   flex-wrap: wrap;
   justify-content: center;
   width: 500px;
+  background: linear-gradient(180deg, rgb(249, 254, 255), rgb(0, 95, 223));
+  color: #000;
+  border-radius: 10px;
+  -webkit-box-shadow: 15px -17px 13px -8px rgba(157, 153, 235, 1);
+  -moz-box-shadow: 15px -17px 13px -8px rgba(157, 153, 235, 1);
+  box-shadow: 15px -17px 13px -8px rgba(157, 153, 235, 1);
+  margin-top: 25px;
 }
 
 .weather__location {
@@ -93,6 +105,11 @@ onMounted( async () => {
 .weather__data p {
   width: 40%;
   text-align: center;
+}
+
+.weather__nav-icon {
+  width: 30px;
+  height: 30px;
 }
 </style>
 

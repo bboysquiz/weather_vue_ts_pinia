@@ -95,5 +95,10 @@ export const useWeatherStore = defineStore('weathers', () => {
             console.error("Error occurred while getting location:", error);
         });
     }
-        return { data, getWeather, getCurrentWeather }
+    const deleteItem = (id: number): void => {
+        data.weathers = data.weathers.filter(item => item.id !== id)
+    }
+        return { data, getWeather, getCurrentWeather, deleteItem }
+    }, {
+        persist: true
     })
