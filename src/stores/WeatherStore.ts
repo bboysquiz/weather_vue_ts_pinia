@@ -7,7 +7,8 @@ interface Data {
     lon: number | null,
     lat: number | null,
     isLoading: boolean,
-    currentWeather: WeatherData | null
+    currentWeather: WeatherData | null,
+    error: string | null,
 }
 
 interface WeatherData {
@@ -62,18 +63,26 @@ const data: Data = reactive({
     lat: null,
     isLoading: false,
     currentWeather: null,
+    error: null,
 });
 
 
 export const useWeatherStore = defineStore('weathers', () => {
     const getWeather = async (cityName: string): Promise<void> => {
-        try {
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=67c859d5010465976e7b3e885122af9a&units=metric`;
-            const response: AxiosResponse<WeatherData> = await axios.get(url);
-            data.weathers = [...data.weathers, response.data];
-            console.log(data.weathers)
-        } catch (error) {
-            console.error(error);
+        if (data.weathers.find(city => city.name === cityName)){
+            data.error = 'this city already added in your list'
+        } else {
+            try {
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=67c859d5010465976e7b3e885122af9a&units=metric`;
+                const response: AxiosResponse<WeatherData> = await axios.get(url);
+                data.weathers = [...data.weathers, response.data];
+                console.log(data.weathers)
+                data.error = null
+            } catch (error) {
+                console.error(error.response.data.message);
+                data.error = error.response.data.message;
+
+            }
         }
     };
     const getCurrentWeather = async (): Promise<void> => {
@@ -89,7 +98,7 @@ export const useWeatherStore = defineStore('weathers', () => {
                 console.log(data.currentWeather)
                 data.isLoading = false
             } catch (error) {
-                console.error(error);
+                console.error(error.response.data.message);
             }
         }, function (error) {
             console.error("Error occurred while getting location:", error);
